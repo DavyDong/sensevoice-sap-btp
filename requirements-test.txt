@@ -1,0 +1,12 @@
+# Lightweight API/auth/audio regression environment; no model downloads or torch.
+-c requirements-linux.lock
+pytest==9.1.1
+fastapi
+python-multipart
+sap-xssec
+soundfile
+numpy
+scipy
+httpx
+PyJWT
+cryptography

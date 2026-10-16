@@ -1,0 +1,235 @@
+{
+  "info": {
+    "name": "SenseVoice local + BTP",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Local baseUrl=http://127.0.0.1:8000 and empty token. For BTP use HTTPS route. Use request 2 to obtain an XSUAA token, or set the local secret token variable to the configured BTP ACCESS_TOKEN and skip request 2. Never export real secrets."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8000"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "tokenUrl",
+      "value": ""
+    },
+    {
+      "key": "clientId",
+      "value": ""
+    },
+    {
+      "key": "clientSecret",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Ready",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/health/ready"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Ready', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. XSUAA client credentials (cloud only)",
+      "request": {
+        "method": "POST",
+        "url": "{{tokenUrl}}",
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "username",
+              "value": "{{clientId}}",
+              "type": "string"
+            },
+            {
+              "key": "password",
+              "value": "{{clientSecret}}",
+              "type": "string"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/x-www-form-urlencoded"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "grant_type",
+              "value": "client_credentials"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Token issued', () => pm.response.to.have.status(200));",
+              "if (pm.response.code === 200) pm.collectionVariables.set('token', pm.response.json().access_token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Transcribe file (select local audio)",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/v1/audio/transcriptions",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": []
+            },
+            {
+              "key": "language",
+              "type": "text",
+              "value": "auto"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Recognized', () => pm.response.to.have.status(200));",
+              "pm.test('Text property', () => pm.expect(pm.response.json()).to.have.property('text'));",
+              "pm.test('Timing property', () => pm.expect(pm.response.json()).to.have.property('rtf'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Raw WAV (ABAP contract)",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/v1/transcribe?language=auto",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "audio/wav"
+          }
+        ],
+        "body": {
+          "mode": "file",
+          "file": {}
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Raw audio recognized', () => pm.response.to.have.status(200));",
+              "pm.test('Nonempty raw transcript', () => pm.expect(pm.response.json().text).to.be.a('string').and.not.empty);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Missing token rejected (cloud only)",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/v1/transcribe",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "invalid"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('No token rejected', () => pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Invalid token rejected (cloud only)",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/v1/transcribe",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer invalid"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "invalid"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Invalid token rejected', () => pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

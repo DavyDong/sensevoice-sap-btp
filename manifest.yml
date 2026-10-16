@@ -1,0 +1,25 @@
+---
+applications:
+  - name: ((app_name))
+    instances: 1
+    memory: 6G
+    disk_quota: 4G
+    timeout: 180
+    health-check-type: http
+    health-check-http-endpoint: /health/ready
+    health-check-invocation-timeout: 5
+    docker:
+      image: ((docker_image))
+    routes:
+      - route: ((route))
+    services:
+      - ((xsuaa_service))
+    env:
+      HOST: 0.0.0.0
+      AUTH_MODE: xsuaa
+      # Optional ACCESS_TOKEN is configured in BTP User-Provided Variables, not stored here.
+      XSUAA_SERVICE_NAME: ((xsuaa_service))
+      TORCH_THREADS: "2"
+      MODEL_ROOT: /app/models
+      HF_HUB_OFFLINE: "1"
+      HF_HUB_DISABLE_TELEMETRY: "1"

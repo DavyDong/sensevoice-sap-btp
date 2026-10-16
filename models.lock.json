@@ -1,0 +1,4 @@
+{
+  "sensevoice": {"repo": "FunAudioLLM/SenseVoiceSmall", "revision": "3847d57b6bdf2dd8875cb1508d2af43d80a16bf7", "files": ["model.pt", "config.yaml", "configuration.json", "am.mvn", "chn_jpn_yue_eng_ko_spectok.bpe.model", "README.md", "example/zh.mp3", "example/en.mp3"]},
+  "vad": {"repo": "funasr/fsmn-vad", "revision": "df20e6b30c653645fa4ff125cacfcabd1020a669", "files": ["model.pt", "config.yaml", "configuration.json", "am.mvn", "README.md"]}
+}

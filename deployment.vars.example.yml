@@ -1,0 +1,7 @@
+# Copy to deployment.vars.yml, then replace the route with your own CF domain/host.
+# App and service names must be unused or belong to this project in your space.
+app_name: sensevoice-asr
+route: your-unique-host.cfapps.YOUR-REGION.hana.ondemand.com
+xsuaa_service: sensevoice-xsuaa
+# Used only by manifest.yml (Docker option).
+docker_image: registry.example.com/your-namespace/sensevoice-asr:1.0.0

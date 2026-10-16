@@ -1,0 +1,26 @@
+{
+  "xsappname": "sensevoice-change-me",
+  "tenant-mode": "dedicated",
+  "description": "SenseVoice speech recognition API",
+  "scopes": [
+    {
+      "name": "$XSAPPNAME.Transcribe",
+      "description": "Recognize uploaded or streamed speech"
+    }
+  ],
+  "authorities": [
+    "$XSAPPNAME.Transcribe"
+  ],
+  "role-templates": [
+    {
+      "name": "Transcriber",
+      "description": "Speech recognition user",
+      "scope-references": [
+        "$XSAPPNAME.Transcribe"
+      ]
+    }
+  ],
+  "oauth2-configuration": {
+    "token-validity": 900
+  }
+}

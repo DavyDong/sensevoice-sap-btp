@@ -1,0 +1,14 @@
+# Python 3.11. torch + torchaudio are installed from the official CPU index separately.
+funasr==1.4.16
+fastapi==0.143.1
+uvicorn==0.54.0
+python-multipart==0.0.32
+sap-xssec==4.5.0
+soundfile==0.14.0
+numpy<2.3
+scipy<1.17
+transformers<5
+huggingface-hub<1
+websockets==17.2
+httpx==0.28.1
+psutil==7.2.2
